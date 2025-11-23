@@ -1,3 +1,4 @@
+// src/components/CalculationResult.tsx
 import { ListRow, Spacing, colors } from 'tosslib';
 
 interface Props {
@@ -6,7 +7,7 @@ interface Props {
   recommendation: number;
 }
 
-export function SavingsResultDashboard({ expectedAmount, difference, recommendation }: Props) {
+export function CalculationResult({ expectedAmount, difference, recommendation }: Props) {
   return (
     <>
       <Spacing size={8} />

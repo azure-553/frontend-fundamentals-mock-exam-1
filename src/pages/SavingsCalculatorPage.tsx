@@ -12,10 +12,10 @@ import {
 } from 'tosslib';
 import { useSavingsCalculator } from 'hooks/useSavingsCalculator';
 import { SavingsProductList } from 'components/SavingsProductList';
-import { SavingsResultDashboard } from 'components/SavingsResultDashboard';
+import { CalculationResult } from 'components/CalculationResult';
 
 export function SavingsCalculatorPage() {
-  const { formState, formActions, data, selection } = useSavingsCalculator();
+  const { formState, formActions, data, selection, result } = useSavingsCalculator();
   const [currentTab, setCurrentTab] = useState<'products' | 'results'>('products');
 
   return (
@@ -75,8 +75,12 @@ export function SavingsCalculatorPage() {
         />
       ) : (
         <>
-          {selection.selectedProductId ? (
-            <SavingsResultDashboard expectedAmount={1000000} difference={-500000} recommendation={100000} />
+          {selection.selectedProduct && result ? (
+            <CalculationResult
+              expectedAmount={result.expectedAmount}
+              difference={result.difference}
+              recommendation={result.recommendation}
+            />
           ) : (
             <>
               <Spacing size={8} />

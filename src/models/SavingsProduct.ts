@@ -16,6 +16,7 @@ export interface SavingsProduct {
   // 계산 로직을 위해 원시값도 남겨둠
   rawMinAmount: number;
   rawMaxAmount: number;
+  rate: number;
 }
 
 export function toSavingsProduct(dto: SavingsProductDto): SavingsProduct {
@@ -27,5 +28,6 @@ export function toSavingsProduct(dto: SavingsProductDto): SavingsProduct {
     term: dto.availableTerms,
     rawMinAmount: dto.minMonthlyAmount,
     rawMaxAmount: dto.maxMonthlyAmount,
+    rate: dto.annualRate,
   };
 }

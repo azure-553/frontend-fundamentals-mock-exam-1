@@ -1,39 +1,44 @@
 import { useMemo, useState } from 'react';
 import { useSavingsProductList } from './useSavingsProductList';
 import { useSavingsForm } from './useSavingsForm';
+import { calculateExpectedAmount, calculateRecommendedMonthly } from '../utils/savingsCalculator';
 
 export function useSavingsCalculator() {
   const { products, loading } = useSavingsProductList();
-
   const { state: formState, actions: formActions, utils } = useSavingsForm();
 
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-
-  const filteredProducts = useMemo(() => {
-    // 로딩 중이면 계산할 필요 없음
-    if (loading) {
-      return [];
-    }
-
-    return products.filter(product => {
-      const amountNum = utils.getNumericMonthlyAmount();
-      const hasAmount = formState.monthlyAmount !== '';
-
-      const isValidAmount = !hasAmount || (amountNum >= product.rawMinAmount && amountNum <= product.rawMaxAmount);
-      const isValidTerm = product.term === formState.savingsTerm;
-
-      return isValidAmount && isValidTerm;
-    });
-  }, [products, loading, formState.monthlyAmount, formState.savingsTerm, utils]);
 
   const selectedProduct = useMemo(() => {
     return products.find(p => p.id === selectedProductId) || null;
   }, [products, selectedProductId]);
 
+  const calculationResult = useMemo(() => {
+    if (!selectedProduct) {
+      return null;
+    }
+
+    const monthlyAmount = utils.getNumericMonthlyAmount();
+    const targetAmount = utils.getNumericTargetAmount();
+    const term = formState.savingsTerm;
+    const rate = selectedProduct.rate;
+
+    const expected = calculateExpectedAmount(monthlyAmount, term, rate);
+    const recommend = calculateRecommendedMonthly(targetAmount, term, rate);
+    const diff = targetAmount - expected;
+
+    return {
+      expectedAmount: expected,
+      difference: diff,
+      recommendation: recommend,
+    };
+  }, [selectedProduct, formState.savingsTerm, utils]);
+
   return {
     formState,
     formActions,
-    data: { products: filteredProducts, loading },
+    data: { products, loading },
     selection: { selectedProductId, setSelectedProductId, selectedProduct },
+    result: calculationResult,
   };
 }
