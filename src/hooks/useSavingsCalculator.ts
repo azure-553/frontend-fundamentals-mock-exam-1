@@ -25,7 +25,8 @@ export function useSavingsCalculator() {
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
-      const amountNum = Number(monthlyAmount);
+      // 쉼표를 제거 및 숫자 변환
+      const amountNum = Number(monthlyAmount.replace(/,/g, ''));
       const hasAmount = monthlyAmount !== '';
 
       const isValidAmount = !hasAmount || (amountNum >= product.rawMinAmount && amountNum <= product.rawMaxAmount);

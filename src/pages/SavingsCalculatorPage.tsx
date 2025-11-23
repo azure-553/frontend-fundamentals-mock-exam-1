@@ -17,6 +17,14 @@ export function SavingsCalculatorPage() {
   const { formState, formActions, data, selection } = useSavingsCalculator();
   const [currentTab, setCurrentTab] = useState<'products' | 'results'>('products');
 
+  // 숫자 입력 시 쉼표 포맷팅 처리
+  const handleNumberInput = (value: string, setter: (val: string) => void) => {
+    const numbersOnly = value.replace(/[^\d]/g, '');
+    // 쉼표 포맷팅
+    const formatted = numbersOnly ? Number(numbersOnly).toLocaleString() : '';
+    setter(formatted);
+  };
+
   return (
     <>
       <NavigationBar title="적금 계산기" />
@@ -28,7 +36,7 @@ export function SavingsCalculatorPage() {
         placeholder="목표 금액을 입력하세요"
         suffix="원"
         value={formState.targetAmount}
-        onChange={e => formActions.setTargetAmount(e.target.value)}
+        onChange={e => handleNumberInput(e.target.value, formActions.setTargetAmount)}
       />
       <Spacing size={16} />
 
@@ -37,7 +45,7 @@ export function SavingsCalculatorPage() {
         placeholder="희망 월 납입액을 입력하세요"
         suffix="원"
         value={formState.monthlyAmount}
-        onChange={e => formActions.setMonthlyAmount(e.target.value)}
+        onChange={e => handleNumberInput(e.target.value, formActions.setMonthlyAmount)}
       />
       <Spacing size={16} />
 
