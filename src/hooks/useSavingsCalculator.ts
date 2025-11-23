@@ -1,48 +1,38 @@
-import { useState, useEffect, useMemo } from 'react';
-import { SavingsProduct, toSavingsProduct, SavingsProductDto } from 'models/SavingsProduct';
+import { useMemo, useState } from 'react';
+import { useSavingsProductList } from './useSavingsProductList';
+import { useSavingsForm } from './useSavingsForm';
 
 export function useSavingsCalculator() {
-  const [targetAmount, setTargetAmount] = useState('');
-  const [monthlyAmount, setMonthlyAmount] = useState('');
-  const [savingsTerm, setSavingsTerm] = useState(12);
+  const { products, loading } = useSavingsProductList();
 
-  const [products, setProducts] = useState<SavingsProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { state: formState, actions: formActions, utils } = useSavingsForm();
+
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch('/api/savings-products')
-      .then(res => res.json())
-      .then((data: SavingsProductDto[]) => {
-        setProducts(data.map(toSavingsProduct));
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error(error);
-        setLoading(false);
-      });
-  }, []);
-
   const filteredProducts = useMemo(() => {
+    // 로딩 중이면 계산할 필요 없음
+    if (loading) {
+      return [];
+    }
+
     return products.filter(product => {
-      // 쉼표를 제거 및 숫자 변환
-      const amountNum = Number(monthlyAmount.replace(/,/g, ''));
-      const hasAmount = monthlyAmount !== '';
+      const amountNum = utils.getNumericMonthlyAmount();
+      const hasAmount = formState.monthlyAmount !== '';
 
       const isValidAmount = !hasAmount || (amountNum >= product.rawMinAmount && amountNum <= product.rawMaxAmount);
-      const isValidTerm = product.term === savingsTerm;
+      const isValidTerm = product.term === formState.savingsTerm;
 
       return isValidAmount && isValidTerm;
     });
-  }, [products, monthlyAmount, savingsTerm]);
+  }, [products, loading, formState.monthlyAmount, formState.savingsTerm, utils]);
 
   const selectedProduct = useMemo(() => {
-    return products.find(product => product.id === selectedProductId) || null;
+    return products.find(p => p.id === selectedProductId) || null;
   }, [products, selectedProductId]);
 
   return {
-    formState: { targetAmount, monthlyAmount, savingsTerm },
-    formActions: { setTargetAmount, setMonthlyAmount, setSavingsTerm },
+    formState,
+    formActions,
     data: { products: filteredProducts, loading },
     selection: { selectedProductId, setSelectedProductId, selectedProduct },
   };
