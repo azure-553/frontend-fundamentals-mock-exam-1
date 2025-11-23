@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { SavingsProduct, toSavingsProduct, SavingsProductDto } from '../models/SavingsProduct';
+import { SavingsProduct, toSavingsProduct, SavingsProductDto } from 'models/SavingsProduct';
 
 export function useSavingsCalculator() {
   const [targetAmount, setTargetAmount] = useState('');
@@ -8,6 +8,7 @@ export function useSavingsCalculator() {
 
   const [products, setProducts] = useState<SavingsProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/savings-products')
@@ -34,9 +35,14 @@ export function useSavingsCalculator() {
     });
   }, [products, monthlyAmount, savingsTerm]);
 
+  const selectedProduct = useMemo(() => {
+    return products.find(product => product.id === selectedProductId) || null;
+  }, [products, selectedProductId]);
+
   return {
     formState: { targetAmount, monthlyAmount, savingsTerm },
     formActions: { setTargetAmount, setMonthlyAmount, setSavingsTerm },
     data: { products: filteredProducts, loading },
+    selection: { selectedProductId, setSelectedProductId, selectedProduct },
   };
 }

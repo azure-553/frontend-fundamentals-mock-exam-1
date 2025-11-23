@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Assets,
   Border,
   colors,
   ListHeader,
@@ -15,7 +14,7 @@ import { useSavingsCalculator } from 'hooks/useSavingsCalculator';
 import { SavingsProductList } from 'components/SavingsProductList';
 
 export function SavingsCalculatorPage() {
-  const { formState, formActions, data } = useSavingsCalculator();
+  const { formState, formActions, data, selection } = useSavingsCalculator();
   const [currentTab, setCurrentTab] = useState<'products' | 'results'>('products');
 
   return (
@@ -67,7 +66,12 @@ export function SavingsCalculatorPage() {
       </Tab>
 
       {currentTab === 'products' ? (
-        <SavingsProductList products={data.products} loading={data.loading} />
+        <SavingsProductList
+          products={data.products}
+          loading={data.loading}
+          selectedProductId={selection.selectedProductId}
+          onSelectProduct={selection.setSelectedProductId}
+        />
       ) : (
         <>
           {/* 아래는 계산 결과 탭 내용이에요. 계산 결과 탭을 구현할 때 주석을 해제해주세요. */}
